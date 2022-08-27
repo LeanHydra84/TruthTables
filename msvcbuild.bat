@@ -1,0 +1,1 @@
+cl src/main.cpp src/algo.cpp src/TruthTable.cpp src/EvalType.cpp -o build/main.exe
