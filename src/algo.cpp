@@ -23,6 +23,7 @@ static Connective get_iterative_connective_left(const std::string& str, int* pos
     {
         case L'¬': return Connective::Negation;
         case L'∧':
+        case '&':
         case '^': return Connective::And;
         case 'V':
         case 'v':
@@ -62,6 +63,7 @@ static Connective get_iterative_connective_right(const std::string& str, int* po
         case '-':
         case L'¬': return Connective::Negation;
         case L'∧':
+        case '&':
         case '^': return Connective::And;
         case 'V':
         case 'v':
@@ -93,6 +95,11 @@ static Connective get_iterative_connective_right(const std::string& str, int* po
 bool is_connective_unary(Connective con)
 {
     return con == Connective::Negation;
+}
+
+bool is_constant_variable(char c)
+{
+    return c == 'T' || c == 'F';
 }
 
 const char* substandard_connective_output(Connective c)

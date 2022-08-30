@@ -10,6 +10,7 @@ private:
 
     std::vector<char> variables;
     EvalType* head;
+    int non_const_variables;
 
 private:
     void read_variables_recurse(EvalType* cur);
