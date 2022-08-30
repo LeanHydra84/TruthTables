@@ -31,7 +31,10 @@ void TruthTable_t::assemble_atomic_table(bool* table, int r1, int r2, int c)
     int half = (r1 + r2) / 2;
     for(int i = r1; i < r2; i++)
     {
-        table[xytoi(i, c)] = i < half;
+        int index = xytoi(i, c);
+        if(variables[c] == 'T') table[index] = true;
+        else if(variables[c] == 'F') table[index] = false;
+        else table[index] = i < half;
     }
     if(c + 1 < variable_count())
     {

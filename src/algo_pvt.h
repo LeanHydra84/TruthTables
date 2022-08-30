@@ -7,7 +7,7 @@
 bool implication(bool p, bool q);
 bool biconditional(bool p, bool q);
 
-char* substandard_connective_output(Connective c);
+const char* substandard_connective_output(Connective c);
 wchar_t optimal_connective_character(Connective c);
 bool is_connective_unary(Connective con);
 

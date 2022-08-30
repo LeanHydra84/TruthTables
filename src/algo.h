@@ -7,5 +7,6 @@ void print_truth_table(TruthTable_t* ttp);
 void print_optimal_string(TruthTable_t* ttp);
 void cleanup_truthtable(TruthTable_t* ttp);
 void print_atomic_table(TruthTable_t* ttp);
+bool validate_grouping_symbols(const std::string& input);
 
 #endif

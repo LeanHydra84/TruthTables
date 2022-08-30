@@ -4,10 +4,12 @@
 #include <unordered_map>
 #include <iostream>
 #include <cmath>
+#include <stack>
 
 #include "Connectives.h"
 #include "EvalType.h"
 #include "TruthTable.h"
+#include "algo.h"
 
 static int get_precedence(Connective con)
 {
@@ -93,7 +95,7 @@ bool is_connective_unary(Connective con)
     return con == Connective::Negation;
 }
 
-char* substandard_connective_output(Connective c)
+const char* substandard_connective_output(Connective c)
 {
     switch(c)
     {
@@ -134,23 +136,65 @@ bool biconditional(bool p, bool q)
     return implication(p, q) && implication(q, p);
 }
 
+static bool is_closing_group(char c)
+{
+    return c == ')' || c == ']';
+}
+
+static bool is_opening_group(char c)
+{
+    return c == '(' || c == '[';
+}
+
+static char get_conjugate_groupsymbol(char c)
+{
+    switch(c)
+    {
+        case '(': return ')';
+        case ')': return '(';
+        case '[': return ']';
+        case ']': return '[';
+        default: return '\0';
+    }
+}
+
 static void recurse_pattern(const std::string& input, int left, int right, EvalType* current)
 {
 
     int connective_position = -1;
+    int connective_parenlevel = -1;
+
+    std::stack<char> grouping;
+
     Connective con = Connective::VAR;
     for(int i = right - 1; i >= left; i--)
     {
         if(std::isspace(input[i]))
             continue;
+
+        if(is_closing_group(input[i]))
+        {
+            grouping.push(input[i]);
+            continue;
+        }
+
+        if(is_opening_group(input[i]))
+        {
+            if(grouping.size() != 0)
+                grouping.pop();
+
+            continue;
+        }
         
         Connective _itercon = get_iterative_connective_right(input, &i);
         if(_itercon != Connective::NONE)
         {
-            if(get_precedence(_itercon) > get_precedence(con))
+            if(connective_parenlevel == -1) connective_parenlevel = grouping.size();
+            if(get_precedence(_itercon) > get_precedence(con) && grouping.size() <= connective_parenlevel)
             {
                 con = _itercon;
                 connective_position = i;
+                connective_parenlevel = grouping.size();
             }
         }
     }
@@ -182,19 +226,19 @@ static void recurse_pattern(const std::string& input, int left, int right, EvalT
 
     current->type = con;
 
+    // RIGHT NODE
     current->right = new EvalType;
     get_iterative_connective_left(input, &connective_position);
-    //std::cout << "Creating right node type " << input.substr(connective_position + 1, right - connective_position) << std::endl;
     recurse_pattern(input, connective_position + 1, right, current->right);
 
     
     if(is_connective_unary(con))
         return;
 
+    // LEFT NODE
     current->left = new EvalType;
     get_iterative_connective_right(input, &connective_position);
-    //std::cout << "Creating left node type " << input.substr(left, connective_position - left - 1) << std::endl;
-    recurse_pattern(input, left, connective_position - 1, current->left);
+    recurse_pattern(input, left, connective_position, current->left);
 
 }
 
@@ -239,4 +283,29 @@ void cleanup_truthtable(TruthTable_t* ttp)
 void print_truth_table(TruthTable_t* ttp)
 {
     ttp->print_truth_table();
+}
+
+bool validate_grouping_symbols(const std::string& input)
+{
+    std::stack<char> groups;
+    for(char c : input)
+    {
+        if(is_opening_group(c))
+        {
+            groups.push(c);
+            continue;
+        }
+
+        if(is_closing_group(c))
+        {
+            if(groups.size() == 0) return false;
+
+            char top = groups.top();
+            groups.pop();
+
+            if(top != get_conjugate_groupsymbol(c))
+                return false;
+        }
+    }
+    return groups.size() == 0;
 }
