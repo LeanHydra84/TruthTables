@@ -26,6 +26,7 @@ public:
 
     void print_truth_table();
     void print_atomic_table();
+    bool print_comparison(TruthTable_t* other);
 
 };
 

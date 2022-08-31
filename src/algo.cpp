@@ -316,3 +316,8 @@ bool validate_grouping_symbols(const std::string& input)
     }
     return groups.size() == 0;
 }
+
+void print_truth_table_comparison(TruthTable_t* first, TruthTable_t* second)
+{
+    bool rv = first->print_comparison(second);
+}

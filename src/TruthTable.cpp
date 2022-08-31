@@ -61,6 +61,8 @@ EvalType* TruthTable_t::get_head() { return head; }
 int TruthTable_t::variable_count() { return variables.size(); }
 int TruthTable_t::row_count() { return std::pow(2, non_const_variables); }
 
+
+
 void TruthTable_t::print_truth_table()
 {
     std::unordered_map<char, bool> map;
@@ -87,6 +89,54 @@ void TruthTable_t::print_truth_table()
     }
 
     delete[] atomic_table;
+}
+
+bool TruthTable_t::print_comparison(TruthTable_t* other)
+{
+    if(other->variable_count() != variable_count()) return false;
+    
+    std::sort(variables.begin(), variables.end());
+    std::sort(other->variables.begin(), other->variables.end());
+
+    if(variables != other->variables) return false;
+
+    for(char c : variables)
+        std::cout << " | " << c;
+    std::cout << "\t\t | ";
+    print_optimal_string(this);
+    std::cout << "\t| ";
+    print_optimal_string(other);
+    std::cout << std::endl;
+
+    // create master atomic table??
+    bool* atomic_table = new bool[variable_count() * row_count()];
+    assemble_atomic_table(atomic_table, 0, row_count(), 0);
+
+    std::unordered_map<char, bool> map;
+
+    bool isEqual = true;
+    for(int i = 0; i < row_count(); i++)
+    {
+        for(int c = 0; c < variable_count(); c++)
+        {
+            map[variables[c]] = atomic_table[xytoi(i, c)];
+            std::cout << " | " << (atomic_table[xytoi(i, c)] ? 'T' : 'F' );
+        }
+
+        bool ourvalue = head->Value(map);
+        bool theirvalue = other->head->Value(map);
+
+        if(ourvalue != theirvalue) isEqual = false;
+
+        std::cout << "\t\t | " << (ourvalue ? 'T' : 'F') << "\t\t| " << (theirvalue ? 'T' : 'F') << std::endl;
+
+    }
+    
+    std::cout << (isEqual ? "The two expressions ARE equal." : "The two expressions ARE NOT equal.") << std::endl;
+
+    delete[] atomic_table;
+    return isEqual;
+
 }
 
 void TruthTable_t::print_atomic_table()
